@@ -1,0 +1,5 @@
+com\example\task\Main.class
+com\example\task\Task.class
+com\example\task\SpringConfig.class
+com\example\task\TaskService.class
+com\example\task\TaskRepository.class
