@@ -1,78 +1,134 @@
 package com.example.task;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import com.example.task.model.Task;
+import com.example.task.service.TaskService;
+import com.example.task.service.AuthService;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        // Create the Spring IoC container from the configuration class
-        ApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
+        TaskService taskService = new TaskService();
+        AuthService authService = new AuthService();
+        Scanner sc = new Scanner(System.in);
 
-        // Get the TaskService bean from the container
-        TaskService taskService = context.getBean(TaskService.class);
-        Scanner scanner = new Scanner(System.in);
-        int choice;
+        while (true) {
+            System.out.println("\n=== Task Manager ===");
+            System.out.println("1. Signup");
+            System.out.println("2. Login");
+            System.out.println("3. Add Task");
+            System.out.println("4. View All Tasks");
+            System.out.println("5. Delete Task");
+            System.out.println("6. Mark Task Completed");
+            System.out.println("7. Logout");
+            System.out.println("8. Exit");
+            System.out.print("Enter choice: ");
 
-        System.out.println("Task Management Console Application");
+            int choice = sc.nextInt();
+            sc.nextLine(); // consume newline
 
-        do {
-            System.out.println("\n--- Menu ---");
-            System.out.println("1. Add a new task");
-            System.out.println("2. View all tasks");
-            System.out.println("3. Update a task");
-            System.out.println("4. Delete a task");
-            System.out.println("0. Exit");
-            System.out.print("Enter your choice: ");
+            switch (choice) {
+                case 1: // Signup
+                    System.out.print("Enter username: ");
+                    String suName = sc.nextLine();
+                    System.out.print("Enter password: ");
+                    String suPass = sc.nextLine();
+                    if (authService.signup(suName, suPass)) {
+                        System.out.println("Signup successful! You can now login.");
+                    } else {
+                        System.out.println("Signup failed! Username already exists.");
+                    }
+                    break;
 
-            try {
-                choice = scanner.nextInt();
-                scanner.nextLine(); // Consume newline
+                case 2: // Login
+                    if (authService.isLoggedIn()) {
+                        System.out.println("Already logged in as " + authService.getLoggedInUser().getUsername());
+                        break;
+                    }
+                    System.out.print("Enter username: ");
+                    String liName = sc.nextLine();
+                    System.out.print("Enter password: ");
+                    String liPass = sc.nextLine();
+                    if (authService.login(liName, liPass)) {
+                        System.out.println("Login successful! Welcome " + liName);
+                    } else {
+                        System.out.println("Invalid username or password.");
+                    }
+                    break;
 
-                switch (choice) {
-                    case 1:
-                        System.out.print("Enter task title: ");
-                        String title = scanner.nextLine();
-                        System.out.print("Enter task description: ");
-                        String description = scanner.nextLine();
-                        taskService.addTask(title, description);
+                case 3: // Add Task
+                    if (!authService.isLoggedIn()) {
+                        System.out.println("You must login first!");
                         break;
-                    case 2:
-                        taskService.viewAllTasks();
+                    }
+                    System.out.print("Enter task title: ");
+                    String title = sc.nextLine();
+                    System.out.print("Enter description: ");
+                    String desc = sc.nextLine();
+                    Task task = new Task(title, desc.isEmpty() ? null : desc, false);
+                    taskService.addTask(task);
+                    System.out.println("Task added successfully!");
+                    break;
+
+                case 4: // View Tasks
+                    if (!authService.isLoggedIn()) {
+                        System.out.println("You must login first!");
                         break;
-                    case 3:
-                        System.out.print("Enter task ID to update: ");
-                        int updateId = scanner.nextInt();
-                        scanner.nextLine(); // Consume newline
-                        System.out.print("Enter new title: ");
-                        String newTitle = scanner.nextLine();
-                        System.out.print("Enter new description: ");
-                        String newDescription = scanner.nextLine();
-                        System.out.print("Is the task completed? (true/false): ");
-                        boolean newStatus = scanner.nextBoolean();
-                        taskService.updateTask(updateId, newTitle, newDescription, newStatus);
+                    }
+                    List<Task> tasks = taskService.getAllTasks();
+                    if (tasks.isEmpty()) {
+                        System.out.println("No tasks found!");
+                    } else {
+                        tasks.forEach(System.out::println);
+                    }
+                    break;
+
+                case 5: // Delete
+                    if (!authService.isLoggedIn()) {
+                        System.out.println("You must login first!");
                         break;
-                    case 4:
-                        System.out.print("Enter task ID to delete: ");
-                        int deleteId = scanner.nextInt();
-                        taskService.deleteTask(deleteId);
+                    }
+                    System.out.print("Enter task ID to delete: ");
+                    int id = sc.nextInt();
+                    if (taskService.deleteTask(id)) {
+                        System.out.println("Task deleted successfully!");
+                    } else {
+                        System.out.println("Task not found.");
+                    }
+                    break;
+
+                case 6: // Complete
+                    if (!authService.isLoggedIn()) {
+                        System.out.println("You must login first!");
                         break;
-                    case 0:
-                        System.out.println("Exiting application.");
-                        break;
-                    default:
-                        System.out.println("Invalid choice. Please try again.");
-                }
-            } catch (Exception e) {
-                System.out.println("Invalid input. Please enter a number.");
-                scanner.nextLine(); // Clear the invalid input from the scanner
-                choice = -1; // Reset choice to loop again
+                    }
+                    System.out.print("Enter task ID to mark as completed: ");
+                    int cid = sc.nextInt();
+                    if (taskService.markTaskCompleted(cid)) {
+                        System.out.println("Task marked as completed!");
+                    } else {
+                        System.out.println("Task not found.");
+                    }
+                    break;
+
+                case 7: // Logout
+                    if (authService.isLoggedIn()) {
+                        System.out.println("Goodbye " + authService.getLoggedInUser().getUsername());
+                        authService.logout();
+                    } else {
+                        System.out.println("You are not logged in.");
+                    }
+                    break;
+
+                case 8: // Exit
+                    System.out.println("Exiting...");
+                    sc.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid choice!");
             }
-
-        } while (choice != 0);
-
-        scanner.close();
-        ((AnnotationConfigApplicationContext) context).close();
+        }
     }
 }
