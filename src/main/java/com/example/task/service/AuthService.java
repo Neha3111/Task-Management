@@ -2,6 +2,7 @@ package com.example.task.service;
 
 import com.example.task.model.User;
 import com.example.task.repository.UserRepository;
+import com.example.task.util.PasswordUtil;
 
 public class AuthService {
     private final UserRepository userRepo = new UserRepository();
@@ -11,14 +12,19 @@ public class AuthService {
         if (userRepo.findByUsername(username) != null) {
             return false; // already exists
         }
-        return userRepo.save(new User(username, password));
+        // hash before saving
+        String hashed = PasswordUtil.hashPassword(password);
+        return userRepo.save(new User(username, hashed));
     }
 
     public boolean login(String username, String password) {
         User u = userRepo.findByUsername(username);
-        if (u != null && u.getPassword().equals(password)) {
-            loggedInUser = u;
-            return true;
+        if (u != null) {
+            String hashedInput = PasswordUtil.hashPassword(password);
+            if (u.getPassword().equals(hashedInput)) {
+                loggedInUser = u;
+                return true;
+            }
         }
         return false;
     }

@@ -30,9 +30,9 @@ public class UserRepository {
     public boolean save(User user) {
         String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
         try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword());
+            stmt.setString(2, user.getPassword()); // already hashed in AuthService
             int rows = stmt.executeUpdate();
             if (rows > 0) {
                 try (ResultSet rs = stmt.getGeneratedKeys()) {
@@ -46,4 +46,5 @@ public class UserRepository {
         }
         return false;
     }
+
 }
