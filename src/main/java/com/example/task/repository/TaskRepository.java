@@ -2,12 +2,15 @@ package com.example.task.repository;
 
 import com.example.task.model.Task;
 import com.example.task.util.DBUtil;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+@Repository
 public class TaskRepository {
+    // existing code remains same, just added @Repository
+
 
     public void save(Task task) {
         if (task == null || task.getTitle() == null || task.getTitle().trim().isEmpty()) {

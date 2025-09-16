@@ -3,6 +3,9 @@ package com.example.task.service;
 import com.example.task.model.User;
 import com.example.task.repository.UserRepository;
 import com.example.task.util.PasswordUtil;
+import org.springframework.stereotype.Service;
+
+@Service
 
 public class AuthService {
     private final UserRepository userRepo = new UserRepository();
