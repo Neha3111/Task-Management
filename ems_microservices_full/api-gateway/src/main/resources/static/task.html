@@ -1,0 +1,316 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tasks</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #033432;
+      color: #e0e0e0;
+      padding: 30px;
+      text-align: center;
+      min-height: 100vh;
+    }
+
+    h2 {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 24px;
+      margin: 8px;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #1e90ff;
+      color: #fff;
+    }
+
+    #form {
+      display: none;
+      background-color: #0e4843;
+      padding: 30px 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #013d38;
+      margin-bottom: 30px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #form input, #form select {
+      padding: 14px 16px;
+      margin: 6px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+      font-size: 18px;
+      width: calc(30% - 14px);
+    }
+
+    table {
+      width: 95%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 18px;
+    }
+
+    th, td {
+      padding: 16px 12px;
+      border: 1px solid #444;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background-color: #0e4843;
+      color: #fff;
+      font-size: 20px;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #1d5652;
+    }
+
+    tr:hover td {
+      background-color: #26625d;
+    }
+
+    td button {
+      display: inline-block;
+      margin: 0 5px;
+      padding: 10px 18px;
+      font-size: 16px;
+      border-radius: 8px;
+      background-color: #1e90ff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    td button:hover {
+      background-color: #0d6efd;
+    }
+
+    a {
+      color: #1e90ff;
+      text-decoration: none;
+      font-size: 18px;
+      margin-top: 20px;
+      display: inline-block;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Popup modal */
+    #popup {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+    }
+    #popupContent {
+      background: #fff;
+      color: #333;
+      padding: 20px 30px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 15% auto;
+      text-align: center;
+      font-size: 18px;
+    }
+    #popupButtons button {
+      margin: 8px;
+      padding: 8px 16px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Tasks</h2>
+  <button onclick="load()">Refresh</button>
+  <button onclick="showForm()">Add Task</button>
+
+  <div id="form">
+    <input type="hidden" id="id">
+    <input id="title" placeholder="Title"/>
+    <input id="description" placeholder="Description"/>
+    <select id="status">
+      <option value="Pending">Pending</option>
+      <option value="InProgress">In Progress</option>
+      <option value="Completed">Completed</option>
+    </select>
+    <input id="employee_id" placeholder="Employee ID"/>
+    <input type="date" id="due_date"/>
+    <select id="priority">
+      <option value="Low">Low</option>
+      <option value="Medium">Medium</option>
+      <option value="High">High</option>
+    </select>
+    <br>
+    <button onclick="save()">Save</button>
+    <button onclick="hideForm()">Cancel</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Employee ID</th>
+        <th>Due Date</th>
+        <th>Priority</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="list"></tbody>
+  </table>
+
+  <p><a href="/employee.html">Employees</a> | <a href="/login.html">Logout</a></p>
+
+  <!-- Popup -->
+  <div id="popup">
+    <div id="popupContent">
+      <p id="popupMsg"></p>
+      <div id="popupButtons"></div>
+    </div>
+  </div>
+
+  <script>
+    const API = "http://localhost:8083/api/tasks";
+
+    async function load() {
+      try {
+        let res = await fetch(API);
+        if (!res.ok) throw new Error("Server error " + res.status);
+        let data = await res.json();
+
+        if (!Array.isArray(data)) {
+          document.getElementById('list').innerHTML = "<tr><td colspan='8'>Error loading tasks</td></tr>";
+          return;
+        }
+
+        let html = data.map(d => `
+          <tr>
+            <td>${d.id}</td>
+            <td>${d.title}</td>
+            <td>${d.description}</td>
+            <td>${d.status}</td>
+            <td>${d.employeeId}</td>
+            <td>${d.dueDate || ''}</td>
+            <td>${d.priority}</td>
+            <td>
+              <button onclick="confirmEdit(${d.id}, '${d.title}', '${d.description}', '${d.status}', ${d.employeeId}, '${d.dueDate}', '${d.priority}')">Edit</button>
+              <button onclick="confirmDelete(${d.id})">Delete</button>
+            </td>
+          </tr>`).join('');
+        document.getElementById('list').innerHTML = html;
+      } catch (e) {
+        document.getElementById('list').innerHTML = "<tr><td colspan='8'>Failed to fetch tasks</td></tr>";
+        console.error(e);
+      }
+    }
+
+    function showForm() { document.getElementById('form').style.display = 'block'; }
+    function hideForm() { 
+      document.getElementById('form').style.display = 'none';
+      document.getElementById('id').value = '';
+      document.getElementById('title').value = '';
+      document.getElementById('description').value = '';
+      document.getElementById('status').value = 'Pending';
+      document.getElementById('employee_id').value = '';
+      document.getElementById('due_date').value = '';
+      document.getElementById('priority').value = 'Medium';
+    }
+
+    async function save() {
+      const id = document.getElementById('id').value;
+      let payload = {
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        status: document.getElementById('status').value,
+        employeeId: parseInt(document.getElementById('employee_id').value || 0),
+        dueDate: document.getElementById('due_date').value,
+        priority: document.getElementById('priority').value
+      };
+
+      if (id) {
+        await fetch(API + '/' + id, { method: 'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      } else {
+        await fetch(API, { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      }
+      hideForm();
+      load();
+    }
+
+    async function del(id) {
+      await fetch(API + '/' + id, { method: 'DELETE' });
+      load();
+    }
+
+    function edit(id, title, description, status, employeeId, dueDate, priority) {
+      document.getElementById('id').value = id;
+      document.getElementById('title').value = title;
+      document.getElementById('description').value = description;
+      document.getElementById('status').value = status;
+      document.getElementById('employee_id').value = employeeId;
+      document.getElementById('due_date').value = dueDate;
+      document.getElementById('priority').value = priority;
+      showForm();
+    }
+
+    // Popup logic
+    function showPopup(msg, yesAction = null) {
+      document.getElementById('popupMsg').innerText = msg;
+      const btns = document.getElementById('popupButtons');
+      btns.innerHTML = '';
+      if (yesAction) {
+        btns.innerHTML = `
+          <button onclick="closePopup(); ${yesAction}">Yes</button>
+          <button onclick="closePopup()">No</button>
+        `;
+      } else {
+        btns.innerHTML = `<button onclick="closePopup()">OK</button>`;
+      }
+      document.getElementById('popup').style.display = 'block';
+    }
+
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+
+    // Confirmation wrappers
+    function confirmDelete(id) {
+      showPopup("Are you sure you want to delete this task?", `del(${id})`);
+    }
+
+    function confirmEdit(id, title, description, status, employeeId, dueDate, priority) {
+      showPopup("Do you want to edit this task?", `edit(${id}, '${title}', '${description}', '${status}', ${employeeId}, '${dueDate}', '${priority}')`);
+    }
+
+    load();
+  </script>
+</body>
+</html>

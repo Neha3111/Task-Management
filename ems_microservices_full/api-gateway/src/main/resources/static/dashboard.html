@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+  <style>
+    /* General body styling */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #033432; /* Dark teal background */
+      color: #e0e0e0; /* Light text */
+      padding: 50px 20px;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    h2 {
+      font-size: 60px;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+
+    p {
+      font-size: 22px;
+      margin-bottom: 40px;
+      color: #d0d0d0;
+    }
+
+    /* Buttons */
+    .dashboard-button {
+      background-color: #0e4843; /* Dark green button */
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 18px 36px;
+      margin: 12px;
+      font-size: 22px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    .dashboard-button:hover {
+      background-color: #1e90ff; /* Blue hover effect */
+      transform: translateY(-2px);
+    }
+
+    /* Logout link */
+    a.logout {
+      display: inline-block;
+      margin-top: 40px;
+      font-size: 20px;
+      color: #1e90ff; /* Matches theme */
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    a.logout:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 40px;
+      }
+      p {
+        font-size: 18px;
+      }
+      .dashboard-button {
+        width: 90%;
+        font-size: 18px;
+        padding: 14px 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Welcome to EMS</h2>
+  <p>Select what you want to manage:</p>
+  <button class="dashboard-button" onclick="window.location.href='employee.html'">Employees</button>
+  <button class="dashboard-button" onclick="window.location.href='task.html'">Tasks</button>
+  <p><a href="login.html" class="logout">Logout</a></p>
+</body>
+</html>

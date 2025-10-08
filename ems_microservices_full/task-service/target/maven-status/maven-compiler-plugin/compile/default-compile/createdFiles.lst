@@ -1,0 +1,9 @@
+com\example\task\config\CorsConfig.class
+com\example\task\repository\TaskRepository.class
+main\java\com\example\task\service\TaskService.class
+com\example\task\entity\Task$Priority.class
+com\example\task\controller\TaskController.class
+com\example\task\entity\Task$Status.class
+com\example\task\entity\Task.class
+com\example\task\TaskApplication.class
+com\example\task\config\CorsConfig$1.class

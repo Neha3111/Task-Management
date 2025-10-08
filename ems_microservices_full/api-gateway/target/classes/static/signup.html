@@ -1,0 +1,85 @@
+<!-- <!doctype html><html><head><meta charset="utf-8"><title>Signup</title><link rel="stylesheet" href="style.css"></head><body>
+<h2>Signup</h2>
+<form id="f"><input id="username" placeholder="username"/><input id="password" type="password" placeholder="password"/><button>Signup</button></form>
+<div id="msg"></div><p><a href="/login.html">Login</a></p>
+<script>
+document.getElementById('f').onsubmit = async (e)=>{
+ e.preventDefault();
+ let res = await fetch('http://localhost:8081/api/auth/signup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:document.getElementById('username').value,password:document.getElementById('password').value})});
+ let data = await res.json(); if(res.ok){ document.getElementById('msg').innerText='Signup OK. Please login.'; } else { document.getElementById('msg').innerText=JSON.stringify(data); }
+};
+</script></body></html> -->
+
+
+
+<!-- <!doctype html><html>
+    <head><meta charset="utf-8">
+        <title>Signup</title>
+        <link rel="stylesheet" href="style.css"></head><body>
+<h2>Signup</h2>
+<form id="f">
+    <input id="username" placeholder="username"/><br>
+    <input id="password" type="password" placeholder="password"/><br>
+    <button>Signup</button></form>
+<div id="msg"></div><p><a href="/login.html">Login</a></p>
+<script>
+document.getElementById('f').onsubmit = async (e)=>{
+ e.preventDefault();
+ let res = await fetch('http://localhost:8081/api/auth/signup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:document.getElementById('username').value,password:document.getElementById('password').value})});
+ let data = await res.json(); if(res.ok){ document.getElementById('msg').innerText='Signup OK. Please login.'; } else { document.getElementById('msg').innerText=JSON.stringify(data); }
+};
+</script></body></html> -->
+
+
+
+
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Signup</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <h2>Signup</h2>
+    <form id="f">
+        <div class="input-group">
+            <i class="fa fa-user"></i>
+            <input id="username" placeholder="Username" required/>
+        </div>
+        <div class="input-group">
+            <i class="fa fa-lock"></i>
+            <input id="password" type="password" placeholder="Password" required/>
+        </div>
+        <button>Signup</button>
+    </form>
+    <div id="msg"></div>
+    <p><a href="/login.html">Already have an account? Login</a></p>
+</div>
+
+<script>
+document.getElementById('f').onsubmit = async (e)=>{
+    e.preventDefault();
+    let res = await fetch('http://localhost:8081/api/auth/signup',{
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+        })
+    });
+    let data = await res.json();
+    if(res.ok){
+        document.getElementById('msg').innerText='Signup successful! Please login.';
+        document.getElementById('msg').style.color = '#4caf50';
+    } else {
+        document.getElementById('msg').innerText = data.message || JSON.stringify(data);
+        document.getElementById('msg').style.color = '#ff6b6b';
+    }
+};
+</script>
+</body>
+</html>
